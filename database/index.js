@@ -2,7 +2,8 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher');
 
 var repoSchema = mongoose.Schema({
-  id: Number,
+  id: {type: Number, unique: true, required: true, dropDups: true},
+  username: String,
   name: String,
   html_url: String,
   description: String,

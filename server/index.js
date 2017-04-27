@@ -46,6 +46,7 @@ app.post('/repos/import', function (req, res) {
 var parseRepoObjs = (repo) => {
   var repoObj = {
     id: repo['id'],
+    username: repo['owner']['login'],
     name: repo['name'],
     html_url: repo['html_url'],
     description: repo['description'],
