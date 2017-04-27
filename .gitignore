@@ -1,3 +1,4 @@
 node_modules
 clent/dist/bundle.js
 database/data/db
+server/config/github.js
