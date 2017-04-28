@@ -17,35 +17,40 @@ app.post('/repos/import', function (req, res) {
 
   var options = {
     url: `https://api.github.com/users/${username}/repos`,
-    // access_token: key,
+    method: 'GET',
     headers: {
       'User-Agent' : req.headers['user-agent'],
       'Authorization': 'token ' + key
     }
   }
 
-  request(options, (err, res, body) => {
+  request(options, (err, resp, body) => {
 
     var repoArr = JSON.parse(body);
 
-    repoArr.forEach((repo) => {
-      var repoObj = parseRepoObjs(repo);
-      var repo = new Repo(repoObj);
+    if (Array.isArray(repoArr)) {
+      repoArr.forEach((repo) => {
+        var repoObj = parseRepoObjs(repo);
+        var repo = new Repo(repoObj);
 
-      repo.save()
-      .then(() => {
-        console.log('saved to database successfully');
-      })
-      .catch((err) => {
-        return console.error(err);
+        repo.save()
+        .then(() => {
+          console.log('saved to database successfully');
+        })
+        .catch((err) => {
+          return console.error(err);
+        });
       });
-    });
+      res.end();
+    } else {
+      console.log('user not found');
+    }
   });
 });
 
 var parseRepoObjs = (repo) => {
   var repoObj = {
-    id: repo['id'],
+    repo_id: repo['id'],
     username: repo['owner']['login'],
     name: repo['name'],
     html_url: repo['html_url'],
@@ -57,7 +62,13 @@ var parseRepoObjs = (repo) => {
 };
 
 app.get('/repos', function (req, res) {
-
+  Repo.find({}).sort('-updated_at')
+  .then((repos) => {
+    res.end(JSON.stringify(repos));
+  })
+  .catch((err) => {
+    return console.error(err);
+  });
 });
 
 var port = 1128;
